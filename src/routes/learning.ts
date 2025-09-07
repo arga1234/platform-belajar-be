@@ -9,8 +9,6 @@ import {
 import { authenticate } from '../middleware/authenticate';
 const learningRoutes = Router();
 
-learningRoutes.use(authenticate);
-
 // DOMAIN
 learningRoutes.get('/domain', getAllDomain);
 

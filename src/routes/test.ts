@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as testController from '../controllers/testController';
 import { authenticate } from '../middleware/authenticate';
+import { getHasilCapaianByUserId } from '../services/testService';
 
 const testRoutes = Router();
 
@@ -8,13 +9,18 @@ testRoutes.use(authenticate);
 
 testRoutes.post('/create', testController.createTest);
 
-// get by parent_id
 testRoutes.get('/parent/:parentId', testController.getTestsByParent);
 
-// get by test_type_id
 testRoutes.get('/type/:testTypeId', testController.getTestsByType);
 
-// get nearest live_at by test_type_id
 testRoutes.get('/live/:testTypeId', testController.getNearestTest);
+
+testRoutes.post('/create/type', testController.createTestType);
+
+testRoutes.get('/type', testController.getAllTestTypes);
+
+testRoutes.post('/capaian/create', testController.createHasilCapaian);
+
+testRoutes.get('/capaian/:userId', testController.getHasilCapaianByUserId);
 
 export default testRoutes;

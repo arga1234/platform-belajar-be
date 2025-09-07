@@ -55,3 +55,47 @@ export const getNearestTest = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
+export const createTestType = async (req: Request, res: Response) => {
+  try {
+    const { name } = req.body;
+    if (!name) {
+      return res.status(400).json({ message: 'Name wajib diisi' });
+    }
+
+    const testType = await testService.createTestType(name);
+    res.status(201).json({ message: 'Test type created', data: testType });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getAllTestTypes = async (req: Request, res: Response) => {
+  try {
+    const types = await testService.getAllTestTypes();
+    res.status(200).json({ data: types });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const createHasilCapaian = async (req: Request, res: Response) => {
+  try {
+    const newData = await testService.createHasilCapaian(req.body);
+    res.status(201).json(newData);
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ message: 'Error creating hasil capaian', error: error.message });
+  }
+};
+
+export const getHasilCapaianByUserId = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const data = await testService.getHasilCapaianByUserId(userId);
+    res.json(data);
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching hasil capaian', error: error.message });
+  }
+};
