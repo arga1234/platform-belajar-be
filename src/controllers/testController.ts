@@ -99,3 +99,20 @@ export const getHasilCapaianByUserId = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error fetching hasil capaian', error: error.message });
   }
 };
+
+export async function getHasilCapaianByTestId(req: Request, res: Response): Promise<Response> {
+  try {
+    const { testId } = req.params;
+
+    if (!testId) {
+      return res.status(400).json({ message: 'test_id must be a number' });
+    }
+
+    const data = await testService.getHasilCapaianByTestId(testId);
+
+    return res.json(data);
+  } catch (error) {
+    console.error('Error fetching hasil_capaian:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+}

@@ -43,7 +43,7 @@ export const createQuestion = async (questionData: {
 };
 
 export const getQuestionsByTestId = async (testId: string) => {
-  const queryString = `SELECT * FROM question WHERE test_id = $1 ORDER BY id ASC;`;
+  const queryString = `SELECT * FROM question WHERE test_id = $1 ORDER BY created_at ASC;`;
   const result = await query(queryString, [testId]);
   return result.rows;
 };

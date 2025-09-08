@@ -42,7 +42,7 @@ export const getNearestTest = async (testTypeId: string) => {
     LIMIT 3;
   `;
   const { rows } = await pool.query(query, [testTypeId]);
-  return rows[0] || null;
+  return rows || null;
 };
 
 export const createTestType = async (name: string) => {
@@ -78,6 +78,7 @@ export interface HasilCapaian {
 }
 
 export const createHasilCapaian = async (data: HasilCapaian) => {
+  console.log(data);
   const query = `
     INSERT INTO hasil_capaian (
       user_id, user_name, test_id, test_name, test_type_id, test_type_name, 
@@ -113,3 +114,11 @@ export const getHasilCapaianByUserId = async (userId: string) => {
   const result = await pool.query(query, [userId]);
   return result.rows;
 };
+
+export async function getHasilCapaianByTestId(testId: string): Promise<HasilCapaian[]> {
+  const query = `
+    SELECT * FROM hasil_capaian WHERE test_id = $1 ORDER BY skor DESC
+  `;
+  const result = await pool.query(query, [testId]);
+  return result.rows as HasilCapaian[];
+}
