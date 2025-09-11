@@ -4,17 +4,28 @@ interface CreateTestInput {
   name: string;
   parent_id?: string;
   live_at?: string;
+  live_end?: string;
   test_type_id: string;
+  jumlah_soal: number;
+  durasi_seconds: number;
 }
 
 export const createTest = async (input: CreateTestInput) => {
   const query = `
-    INSERT INTO test (name, parent_id, live_at, test_type_id)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO test (name, parent_id, live_at, test_type_id, live_end, jumlah_soal, durasi_seconds)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *;
   `;
 
-  const values = [input.name, input.parent_id || null, input.live_at || null, input.test_type_id];
+  const values = [
+    input.name,
+    input.parent_id || null,
+    input.live_at || null,
+    input.test_type_id,
+    input.live_end || null,
+    input.jumlah_soal || 0,
+    input.durasi_seconds || 0,
+  ];
 
   const { rows } = await pool.query(query, values);
   return rows[0];
@@ -69,7 +80,7 @@ export interface HasilCapaian {
   test_type_id?: string;
   test_type_name?: string;
   skor?: number;
-  time_left?: string;
+  time_spent?: string;
   persentase_benar_by_domain?: any;
   persentase_benar_by_sub_domain?: any;
   persentase_benar_by_type_answer?: any;
@@ -82,7 +93,7 @@ export const createHasilCapaian = async (data: HasilCapaian) => {
   const query = `
     INSERT INTO hasil_capaian (
       user_id, user_name, test_id, test_name, test_type_id, test_type_name, 
-      skor, time_left, persentase_benar_by_domain, persentase_benar_by_sub_domain, 
+      skor, time_spent, persentase_benar_by_domain, persentase_benar_by_sub_domain, 
       persentase_benar_by_type_answer, persentase_benar_by_kompetensi, jawaban
     ) VALUES (
       $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
@@ -97,7 +108,7 @@ export const createHasilCapaian = async (data: HasilCapaian) => {
     data.test_type_id || null,
     data.test_type_name || null,
     data.skor || null,
-    data.time_left || null,
+    data.time_spent || null,
     data.persentase_benar_by_domain || null,
     data.persentase_benar_by_sub_domain || null,
     data.persentase_benar_by_type_answer || null,
@@ -122,3 +133,15 @@ export async function getHasilCapaianByTestId(testId: string): Promise<HasilCapa
   const result = await pool.query(query, [testId]);
   return result.rows as HasilCapaian[];
 }
+
+export const getHasilCapaianByUserIdAndTestId = async (userId: string, testId: string) => {
+  const query = `SELECT * FROM hasil_capaian WHERE user_id = $1 AND test_id = $2;`;
+  const result = await pool.query(query, [userId, testId]);
+  return result.rows;
+};
+
+export const getHasilCapaianDetailById = async (id: string) => {
+  const query = `SELECT * FROM hasil_capaian WHERE id = $1;`;
+  const result = await pool.query(query, [id]);
+  return result.rows[0];
+};

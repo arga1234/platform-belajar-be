@@ -2,7 +2,7 @@ import { query } from '../db';
 
 export const createQuestion = async (questionData: {
   test_id: string;
-  content_id: string;
+  content_id?: string; // optional
   domain_id: string;
   domain_name: string;
   sub_domain_id: string;
@@ -12,21 +12,27 @@ export const createQuestion = async (questionData: {
   question_type_id: string;
   question_type_name: string;
   data: any;
+  question: string;
 }) => {
-  const queryString = `
-    INSERT INTO question (
-      test_id, content_id, domain_id, domain_name, 
-      sub_domain_id, sub_domain_name, 
-      kompetensi_id, kompetensi_name, 
-      question_type_id, question_type_name, data
-    )
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-    RETURNING *;
-  `;
+  // daftar kolom dan nilai
+  const columns = [
+    'test_id',
+    ...(questionData.content_id ? ['content_id'] : []),
+    'domain_id',
+    'domain_name',
+    'sub_domain_id',
+    'sub_domain_name',
+    'kompetensi_id',
+    'kompetensi_name',
+    'question_type_id',
+    'question_type_name',
+    'data',
+    'question',
+  ];
 
   const values = [
     questionData.test_id,
-    questionData.content_id,
+    ...(questionData.content_id ? [questionData.content_id] : []),
     questionData.domain_id,
     questionData.domain_name,
     questionData.sub_domain_id,
@@ -36,7 +42,17 @@ export const createQuestion = async (questionData: {
     questionData.question_type_id,
     questionData.question_type_name,
     questionData.data,
+    questionData.question,
   ];
+
+  // bikin placeholder $1, $2, dst sesuai jumlah kolom
+  const placeholders = values.map((_, i) => `$${i + 1}`).join(',');
+
+  const queryString = `
+    INSERT INTO question (${columns.join(', ')})
+    VALUES (${placeholders})
+    RETURNING *;
+  `;
 
   const result = await query(queryString, values);
   return result.rows[0];

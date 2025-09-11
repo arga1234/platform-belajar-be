@@ -20,6 +20,14 @@ testRoutes.post('/capaian/create', testController.createHasilCapaian);
 
 testRoutes.get('/capaian/:userId', authenticate, testController.getHasilCapaianByUserId);
 
+testRoutes.get(
+  '/capaian/skor/:userId/:testId',
+  authenticate,
+  testController.getHasilCapaianByUserIdAndTestId
+);
+
+testRoutes.get('/capaian/detail/:id', authenticate, testController.getHasilCapaianDetailById);
+
 testRoutes.get('/capaian/rank/:testId', testController.getHasilCapaianByTestId);
 
 export default testRoutes;

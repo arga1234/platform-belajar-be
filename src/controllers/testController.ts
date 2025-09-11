@@ -3,7 +3,8 @@ import * as testService from '../services/testService';
 
 export const createTest = async (req: Request, res: Response) => {
   try {
-    const { name, parent_id, live_at, test_type_id } = req.body;
+    const { name, parent_id, live_at, live_end, test_type_id, jumlah_soal, durasi_seconds } =
+      req.body;
 
     if (!name || !test_type_id) {
       return res.status(400).json({ message: 'Name and test_type_id are required' });
@@ -14,6 +15,9 @@ export const createTest = async (req: Request, res: Response) => {
       parent_id,
       live_at,
       test_type_id,
+      live_end,
+      jumlah_soal,
+      durasi_seconds,
     });
 
     res.status(201).json({ data: newTest });
@@ -100,12 +104,23 @@ export const getHasilCapaianByUserId = async (req: Request, res: Response) => {
   }
 };
 
+export const getHasilCapaianByUserIdAndTestId = async (req: Request, res: Response) => {
+  try {
+    const { userId, testId } = req.params;
+    const data = await testService.getHasilCapaianByUserIdAndTestId(userId, testId);
+    res.json(data);
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching hasil capaian', error: error.message });
+  }
+};
+
 export async function getHasilCapaianByTestId(req: Request, res: Response): Promise<Response> {
   try {
     const { testId } = req.params;
 
     if (!testId) {
-      return res.status(400).json({ message: 'test_id must be a number' });
+      return res.status(400).json({ message: 'test_id not defined' });
     }
 
     const data = await testService.getHasilCapaianByTestId(testId);
@@ -113,6 +128,20 @@ export async function getHasilCapaianByTestId(req: Request, res: Response): Prom
     return res.json(data);
   } catch (error) {
     console.error('Error fetching hasil_capaian:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+}
+
+export async function getHasilCapaianDetailById(req: Request, res: Response): Promise<Response> {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: 'id not defined' });
+    }
+    const data = await testService.getHasilCapaianDetailById(id);
+    return res.json(data);
+  } catch (error) {
+    console.error('Error fetching hasil_capaian detail:', error);
     return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 }
