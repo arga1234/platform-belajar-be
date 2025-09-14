@@ -145,3 +145,14 @@ export async function getHasilCapaianDetailById(req: Request, res: Response): Pr
     return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 }
+
+export const getHasilCapaianByUserIdAndTestTypeId = async (req: Request, res: Response) => {
+  try {
+    const { userId, testTypeId } = req.params;
+    const data = await testService.getHasilCapaianByUserIdAndTestTypeId(userId, testTypeId);
+    res.json(data);
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching hasil capaian', error: error.message });
+  }
+};

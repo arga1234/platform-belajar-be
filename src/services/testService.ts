@@ -48,7 +48,7 @@ export const getNearestTest = async (testTypeId: string) => {
     SELECT * FROM test
     WHERE test_type_id = $1
       AND live_at IS NOT NULL
-      AND live_at >= NOW()
+      AND live_end >= NOW()
     ORDER BY live_at ASC
     LIMIT 3;
   `;
@@ -89,7 +89,19 @@ export interface HasilCapaian {
 }
 
 export const createHasilCapaian = async (data: HasilCapaian) => {
-  console.log(data);
+  // Cek apakah sudah ada hasil capaian untuk user_id + test_id
+  const checkQuery = `
+    SELECT 1 FROM hasil_capaian
+    WHERE user_id = $1 AND test_id = $2
+    LIMIT 1;
+  `;
+  const checkResult = await pool.query(checkQuery, [data.user_id, data.test_id]);
+
+  if (checkResult.rowCount && checkResult.rowCount > 0) {
+    throw new Error('Ujian sudah pernah dikerjakan oleh user ini');
+  }
+
+  // Insert data baru
   const query = `
     INSERT INTO hasil_capaian (
       user_id, user_name, test_id, test_name, test_type_id, test_type_name, 
@@ -144,4 +156,10 @@ export const getHasilCapaianDetailById = async (id: string) => {
   const query = `SELECT * FROM hasil_capaian WHERE id = $1;`;
   const result = await pool.query(query, [id]);
   return result.rows[0];
+};
+
+export const getHasilCapaianByUserIdAndTestTypeId = async (userId: string, testTypeId: string) => {
+  const query = `SELECT * FROM hasil_capaian WHERE user_id = $1 AND test_type_id = $2 order by created_at desc;`;
+  const result = await pool.query(query, [userId, testTypeId]);
+  return result.rows;
 };

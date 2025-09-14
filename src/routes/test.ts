@@ -30,4 +30,9 @@ testRoutes.get('/capaian/detail/:id', authenticate, testController.getHasilCapai
 
 testRoutes.get('/capaian/rank/:testId', testController.getHasilCapaianByTestId);
 
+testRoutes.get(
+  '/capaian/user/:userId/:testTypeId',
+  testController.getHasilCapaianByUserIdAndTestTypeId
+);
+
 export default testRoutes;

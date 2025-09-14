@@ -13,6 +13,7 @@ export const createQuestion = async (questionData: {
   question_type_name: string;
   data: any;
   question: string;
+  pembahasan: string;
 }) => {
   // daftar kolom dan nilai
   const columns = [
@@ -28,6 +29,7 @@ export const createQuestion = async (questionData: {
     'question_type_name',
     'data',
     'question',
+    'pembahasan',
   ];
 
   const values = [
@@ -43,6 +45,7 @@ export const createQuestion = async (questionData: {
     questionData.question_type_name,
     questionData.data,
     questionData.question,
+    questionData.pembahasan,
   ];
 
   // bikin placeholder $1, $2, dst sesuai jumlah kolom
