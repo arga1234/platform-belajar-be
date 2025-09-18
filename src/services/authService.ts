@@ -51,7 +51,7 @@ export const loginUser = async (data: LoginDto) => {
       no_identitas: user.no_identitas,
     },
     JWT_SECRET,
-    { expiresIn: '4h' }
+    { expiresIn: '5d' }
   );
 
   return {
