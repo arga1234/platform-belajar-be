@@ -87,12 +87,11 @@ export const listImagesByParent = async (req: Request, res: Response) => {
 
     // map to include full url according to current host
     const mapped = rows.map((r) => {
-      const fullUrl = toFullUrl(req, r.url);
       return {
         id: r.id,
         parent_id: r.parent_id,
         name: r.name,
-        url: fullUrl, // full URL for client
+        url: r.url, // full URL for client
         stored_path: r.url, // path-only as stored in DB
       };
     });
