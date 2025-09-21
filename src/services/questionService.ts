@@ -83,42 +83,50 @@ export const getAllQuestionTypes = async () => {
   return result.rows;
 };
 
-// const shuffleArray = <T>(array: T[]): T[] => {
-//   const copy = [...array];
-//   for (let i = copy.length - 1; i > 0; i--) {
-//     const j = Math.floor(Math.random() * (i + 1));
-//     [copy[i], copy[j]] = [copy[j], copy[i]];
-//   }
-//   return copy;
-// };
+export const createSavedQuestion = async (no_identitas: string, question_id: string) => {
+  const queryStringCheck = `SELECT * FROM saved_question sq WHERE sq.no_identitas = $1 AND sq.question_id = $2`;
+  const resultCheck = await query(queryStringCheck, [no_identitas, question_id]);
+  if (resultCheck.rowCount && resultCheck.rowCount > 0) {
+    const queryString = `DELETE FROM saved_question sq WHERE sq.no_identitas = $1 AND sq.question_id = $2 RETURNING *`;
+    const result = await query(queryString, [no_identitas, question_id]);
+    return { ...result.rows[0], isDeleted: true };
+  } else {
+    const queryString = `INSERT INTO saved_question (no_identitas, question_id) VALUES ($1, $2) RETURNING *`;
+    const result = await query(queryString, [no_identitas, question_id]);
+    return { ...result.rows[0], isDeleted: false };
+  }
+};
 
-// export const getQuestionsByTestId = async (testId: string) => {
-//   const queryString = `SELECT * FROM question WHERE test_id = $1 ORDER BY id ASC;`;
-//   const result = await query(queryString, [testId]);
-//   const questions = result.rows;
+export const getSavedQuestrionByUserId = async (
+  no_identitas: string,
+  limit?: number,
+  offset?: number
+) => {
+  const pagelimit = limit ?? 5;
+  const pageOffset = offset ?? 0;
 
-//   // 1. Group berdasarkan content_id
-//   const grouped: Record<string, any[]> = {};
-//   const noContent: any[] = [];
+  // Query untuk data terbatas (5 row)
+  const dataQuery = `
+    SELECT sq.id AS saved_id, q.* 
+    FROM saved_question sq 
+    LEFT JOIN question q ON sq.question_id = q.id 
+    WHERE sq.user_id = $1 
+    ORDER BY sq.id DESC 
+    LIMIT $2 OFFSET $3
+  `;
 
-//   for (const q of questions) {
-//     if (q.content_id) {
-//       if (!grouped[q.content_id]) grouped[q.content_id] = [];
-//       grouped[q.content_id].push(q);
-//     } else {
-//       noContent.push(q);
-//     }
-//   }
+  // Query untuk hitung total data
+  const countQuery = `
+    SELECT COUNT(*) AS total 
+    FROM saved_question sq 
+    WHERE sq.user_id = $1
+  `;
 
-//   // 2. Buat list grup (array of array) + soal tanpa content_id (single array)
-//   const blocks: any[][] = [
-//     ...Object.values(grouped), // grup soal
-//     ...noContent.map((q) => [q]), // soal tunggal
-//   ];
+  const dataResult = await query(dataQuery, [no_identitas, pagelimit, pageOffset]);
+  const countResult = await query(countQuery, [no_identitas]);
 
-//   // 3. Shuffle antar blok
-//   const shuffledBlocks = shuffleArray(blocks);
-
-//   // 4. Flatten hasil akhir
-//   return shuffledBlocks.flat();
-// };
+  return {
+    length: parseInt(countResult.rows[0].total, 10),
+    data: dataResult.rows,
+  };
+};

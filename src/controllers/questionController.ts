@@ -44,3 +44,26 @@ export const getAllQuestionTypes = async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const createSavedQuestionController = async (req: Request, res: Response) => {
+  try {
+    const { user_id, question_id } = req.body;
+    const response = await questionService.createSavedQuestion(user_id, question_id);
+    res.status(200).send(response);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+export const getSavedQuestionByUserId = async (req: Request, res: Response) => {
+  try {
+    const { user_id, offset } = req.params;
+    const response = questionService.getSavedQuestrionByUserId(
+      user_id,
+      offset ? Number(offset) : 0
+    );
+    res.status(200).send(response);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
