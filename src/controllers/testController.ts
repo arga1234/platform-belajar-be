@@ -86,7 +86,7 @@ export const getAllTestTypes = async (req: Request, res: Response) => {
 export const createHasilCapaian = async (req: Request, res: Response) => {
   try {
     const newData = await testService.createHasilCapaian(req.body);
-    res.status(201).json(newData);
+    res.status(201).send(newData);
   } catch (error) {
     res.status(500).send(error);
   }

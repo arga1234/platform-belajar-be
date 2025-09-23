@@ -69,7 +69,7 @@ export const loginUser = async (data: LoginDto) => {
 
 export const getProfile = async (userId: string) => {
   const queryString = `
-    select u.nama_lengkap, u.no_identitas, s."name" as nama_sekolah, k.tingkat as tingkat, r."name" as nama_role
+    select u.id, u.nama_lengkap, u.no_identitas, s."name" as nama_sekolah, k.tingkat as tingkat, r."name" as nama_role
     from users u
     left join sekolah s on u.sekolah = s.id
     left join kelas k on u.kelas = k.id
