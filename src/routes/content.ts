@@ -5,5 +5,6 @@ const contentRoutes = Router();
 
 contentRoutes.post('/create', contentController.createContent);
 contentRoutes.get('/:testId', contentController.getContentsByTestId);
+contentRoutes.get('/single/:id', contentController.getContentsById);
 
 export default contentRoutes;

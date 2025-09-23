@@ -3,11 +3,11 @@ import * as materiService from '../services/materiService';
 
 export const createMateriByKompetensi = async (req: Request, res: Response) => {
   try {
-    const { name, kompetensi_id } = req.body;
-    if (!name || !kompetensi_id) {
+    const { name, kompetensi_id, point } = req.body;
+    if (!name || !kompetensi_id || point) {
       return res.status(400).json({ message: 'Semua field wajib diisi' });
     }
-    const materi = await materiService.createMateriByKompetensi(name, kompetensi_id);
+    const materi = await materiService.createMateriByKompetensi(name, kompetensi_id, point);
     res.status(201).json(materi);
   } catch (err: any) {
     res.status(500).json({ message: err.message });

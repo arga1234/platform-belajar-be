@@ -9,6 +9,7 @@ import questionRoutes from './routes/question';
 import contentRoutes from './routes/content';
 import storageRouter from './routes/storageRouter';
 import imagesRouter from './routes/imagesRouter';
+import pointRouter from './routes/point';
 
 const app = express();
 const baseApi = '/api';
@@ -27,6 +28,7 @@ app.use(`${baseApi}/reference`, referenceRoute);
 app.use(`${baseApi}/test`, testRoutes);
 app.use(`${baseApi}/question`, questionRoutes);
 app.use(`${baseApi}/content`, contentRoutes);
+app.use(`${baseApi}/point`, pointRouter);
 
 // image upload & image records
 app.use(`${baseApi}/upload`, storageRouter); // POST /api/upload

@@ -57,13 +57,16 @@ export const createSavedQuestionController = async (req: Request, res: Response)
 
 export const getSavedQuestionByUserId = async (req: Request, res: Response) => {
   try {
-    const { user_id, offset } = req.params;
-    const response = questionService.getSavedQuestrionByUserId(
-      user_id,
+    const { no_identitas, offset, limit } = req.query;
+
+    const response = await questionService.getSavedQuestionByUserId(
+      String(no_identitas),
+      limit ? Number(limit) : 5,
       offset ? Number(offset) : 0
     );
+
     res.status(200).send(response);
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send((error as Error).message);
   }
 };

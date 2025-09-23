@@ -35,4 +35,9 @@ testRoutes.get(
   testController.getHasilCapaianByUserIdAndTestTypeId
 );
 
+testRoutes.get(
+  '/capaian/quiz/:userId/:kompetensiId/:testTypeId',
+  testController.getHasilCapaianByUserIKompetensiIdTestTypeId
+);
+
 export default testRoutes;

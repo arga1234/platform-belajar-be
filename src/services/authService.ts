@@ -1,4 +1,4 @@
-import { query } from '../db';
+import { pool, query } from '../db';
 import { LoginDto, RegisterDto } from '../types/auth';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -65,4 +65,16 @@ export const loginUser = async (data: LoginDto) => {
       nama_lengkap: user.nama_lengkap,
     },
   };
+};
+
+export const getProfile = async (userId: string) => {
+  const queryString = `
+    select u.nama_lengkap, u.no_identitas, s."name" as nama_sekolah, k.tingkat as tingkat, r."name" as nama_role
+    from users u
+    left join sekolah s on u.sekolah = s.id
+    left join kelas k on u.kelas = k.id
+    left join "role" r  on u."role" = r.id
+    where u.id = $1`;
+  const result = await pool.query(queryString, [userId]);
+  return result.rows[0];
 };

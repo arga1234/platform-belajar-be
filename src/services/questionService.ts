@@ -97,31 +97,33 @@ export const createSavedQuestion = async (no_identitas: string, question_id: str
   }
 };
 
-export const getSavedQuestrionByUserId = async (
-  no_identitas: string,
+export const getSavedQuestionByUserId = async (
+  no_identitas?: string,
   limit?: number,
   offset?: number
 ) => {
+  if (!no_identitas) {
+    throw new Error('no_identitas tidak terdeteksi');
+  }
+
   const pagelimit = limit ?? 5;
   const pageOffset = offset ?? 0;
-
   // Query untuk data terbatas (5 row)
   const dataQuery = `
     SELECT sq.id AS saved_id, q.* 
     FROM saved_question sq 
     LEFT JOIN question q ON sq.question_id = q.id 
-    WHERE sq.user_id = $1 
+    WHERE sq.no_identitas = $1 
     ORDER BY sq.id DESC 
     LIMIT $2 OFFSET $3
   `;
 
   // Query untuk hitung total data
   const countQuery = `
-    SELECT COUNT(*) AS total 
-    FROM saved_question sq 
-    WHERE sq.user_id = $1
+    SELECT COUNT(*) AS total
+    FROM saved_question sq
+    WHERE sq.no_identitas = $1
   `;
-
   const dataResult = await query(dataQuery, [no_identitas, pagelimit, pageOffset]);
   const countResult = await query(countQuery, [no_identitas]);
 

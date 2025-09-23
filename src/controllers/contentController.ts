@@ -28,3 +28,18 @@ export const getContentsByTestId = async (req: Request, res: Response) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const getContentsById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: 'id wajib diisi' });
+    }
+
+    const contents = await contentService.getContentsByContentId(id);
+    console.log(contents);
+    res.status(200).send(contents);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+};

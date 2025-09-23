@@ -1,12 +1,16 @@
 import { query } from '../db';
 
-export const createMateriByKompetensi = async (name: string, kompetensi_id: string) => {
+export const createMateriByKompetensi = async (
+  name: string,
+  kompetensi_id: string,
+  point: number
+) => {
   const queryString = `
-    INSERT INTO materi (name, kompetensi_id)
-    VALUES ($1, $2)
+    INSERT INTO materi (name, kompetensi_id, point)
+    VALUES ($1, $2, $3)
     RETURNING *;
   `;
-  const values = [name, kompetensi_id];
+  const values = [name, kompetensi_id, point];
   const result = await query(queryString, values);
   return result.rows[0];
 };
@@ -53,19 +57,32 @@ export const createDoneMateri = async (payload: {
   materi_id: string;
   kompetensi_id: string;
 }) => {
-  console.log(payload);
   if (!payload.user_id || !payload.materi_id || !payload.kompetensi_id) {
     throw new Error('user_id, materi_id, dan kompetensi_id wajib diisi');
   }
 
-  const queryString = `
+  // cek apakah sudah ada
+  const checkQuery = `
+    SELECT id 
+    FROM materi_selesai 
+    WHERE user_id = $1 AND materi_id = $2 AND kompetensi_id = $3
+    LIMIT 1;
+  `;
+  const checkValues = [payload.user_id, payload.materi_id, payload.kompetensi_id];
+  const { rows: existing } = await query(checkQuery, checkValues);
+
+  if (existing.length > 0) {
+    throw new Error('Materi ini sudah pernah kamu selesaikan, penambahan point tidak berlaku');
+  }
+
+  // insert kalau belum ada
+  const insertQuery = `
     INSERT INTO materi_selesai (user_id, materi_id, kompetensi_id)
     VALUES ($1, $2, $3)
     RETURNING *;
   `;
+  const { rows } = await query(insertQuery, checkValues);
 
-  const values = [payload.user_id, payload.materi_id, payload.kompetensi_id];
-  const { rows } = await query(queryString, values);
   return rows[0];
 };
 

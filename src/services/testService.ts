@@ -86,19 +86,26 @@ export interface HasilCapaian {
   persentase_benar_by_type_answer?: any;
   persentase_benar_by_kompetensi?: any;
   jawaban?: any;
+  parent_id?: any;
 }
 
 export const createHasilCapaian = async (data: HasilCapaian) => {
   // Cek apakah sudah ada hasil capaian untuk user_id + test_id
   const checkQuery = `
-    SELECT 1 FROM hasil_capaian
-    WHERE user_id = $1 AND test_id = $2
-    LIMIT 1;
+    SELECT id, test_type_name FROM hasil_capaian
+    WHERE user_id = $1 AND test_id = $2;
   `;
   const checkResult = await pool.query(checkQuery, [data.user_id, data.test_id]);
 
-  if (checkResult.rowCount && checkResult.rowCount > 0) {
-    throw new Error('Ujian sudah pernah dikerjakan oleh user ini');
+  if (
+    checkResult.rowCount &&
+    checkResult.rowCount > 0 &&
+    checkResult.rows.map((el) => el.test_type_name).includes(data.test_type_name)
+  ) {
+    throw {
+      isDone: true,
+      error: 'Ujian sudah pernah kamu kerjakan',
+    };
   }
 
   // Insert data baru
@@ -106,9 +113,9 @@ export const createHasilCapaian = async (data: HasilCapaian) => {
     INSERT INTO hasil_capaian (
       user_id, user_name, test_id, test_name, test_type_id, test_type_name, 
       skor, time_spent, persentase_benar_by_domain, persentase_benar_by_sub_domain, 
-      persentase_benar_by_type_answer, persentase_benar_by_kompetensi, jawaban
+      persentase_benar_by_type_answer, persentase_benar_by_kompetensi, jawaban, parent_id
     ) VALUES (
-      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
+      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14
     ) RETURNING *;
   `;
 
@@ -126,6 +133,7 @@ export const createHasilCapaian = async (data: HasilCapaian) => {
     data.persentase_benar_by_type_answer || null,
     data.persentase_benar_by_kompetensi || null,
     data.jawaban || null,
+    data.parent_id || null,
   ];
 
   const result = await pool.query(query, values);
@@ -161,5 +169,15 @@ export const getHasilCapaianDetailById = async (id: string) => {
 export const getHasilCapaianByUserIdAndTestTypeId = async (userId: string, testTypeId: string) => {
   const query = `SELECT * FROM hasil_capaian WHERE user_id = $1 AND test_type_id = $2 order by created_at desc;`;
   const result = await pool.query(query, [userId, testTypeId]);
+  return result.rows;
+};
+
+export const getHasilCapaianByUserIdKompetensiIdTestTypeId = async (
+  userId: string,
+  kompetensi_id: string,
+  testTypeId: string
+) => {
+  const query = `SELECT * FROM hasil_capaian WHERE user_id = $1 AND test_type_id = $2 AND parent_id = $3 order by created_at desc;`;
+  const result = await pool.query(query, [userId, testTypeId, kompetensi_id]);
   return result.rows;
 };

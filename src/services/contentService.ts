@@ -15,3 +15,9 @@ export const getContentsByTestId = async (testId: string) => {
   const result = await query(queryString, [testId]);
   return result.rows;
 };
+
+export const getContentsByContentId = async (contentId: string) => {
+  const queryString = `SELECT * FROM content WHERE id = $1 ORDER BY id ASC;`;
+  const result = await query(queryString, [contentId]);
+  return result.rows;
+};

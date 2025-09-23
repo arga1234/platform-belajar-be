@@ -87,9 +87,8 @@ export const createHasilCapaian = async (req: Request, res: Response) => {
   try {
     const newData = await testService.createHasilCapaian(req.body);
     res.status(201).json(newData);
-  } catch (error: any) {
-    console.error(error);
-    res.status(500).json({ message: 'Error creating hasil capaian', error: error.message });
+  } catch (error) {
+    res.status(500).send(error);
   }
 };
 
@@ -150,6 +149,21 @@ export const getHasilCapaianByUserIdAndTestTypeId = async (req: Request, res: Re
   try {
     const { userId, testTypeId } = req.params;
     const data = await testService.getHasilCapaianByUserIdAndTestTypeId(userId, testTypeId);
+    res.json(data);
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching hasil capaian', error: error.message });
+  }
+};
+
+export const getHasilCapaianByUserIKompetensiIdTestTypeId = async (req: Request, res: Response) => {
+  try {
+    const { userId, testTypeId, kompetensiId } = req.params;
+    const data = await testService.getHasilCapaianByUserIdKompetensiIdTestTypeId(
+      userId,
+      kompetensiId,
+      testTypeId
+    );
     res.json(data);
   } catch (error: any) {
     console.error(error);
