@@ -73,7 +73,7 @@ export const pointController = {
     const userId = req.params.userId;
     try {
       const myPoint = await pointService.getMyPointByUser(userId);
-      if (!myPoint) return res.status(404).json({ success: false, message: 'Not found' });
+      if (!myPoint) return res.json({ success: true, data: 0 });
       res.json({ success: true, data: myPoint });
     } catch (err) {
       next(err);
