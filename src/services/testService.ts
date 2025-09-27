@@ -92,7 +92,7 @@ export interface HasilCapaian {
 export const createHasilCapaian = async (data: HasilCapaian) => {
   // Cek apakah sudah ada hasil capaian untuk user_id + test_id
   const checkQuery = `
-    SELECT id, test_type_name FROM hasil_capaian
+    SELECT id, test_type_name, test_id FROM hasil_capaian
     WHERE user_id = $1 AND test_id = $2;
   `;
   const checkResult = await pool.query(checkQuery, [data.user_id, data.test_id]);
@@ -103,6 +103,7 @@ export const createHasilCapaian = async (data: HasilCapaian) => {
     checkResult.rows.map((el) => el.test_type_name).includes(data.test_type_name)
   ) {
     throw {
+      dataCapaian: checkResult.rows,
       isDone: true,
       error: 'Ujian sudah pernah kamu kerjakan',
     };

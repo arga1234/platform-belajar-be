@@ -57,18 +57,23 @@ export const pointController = {
     }
   },
 
-  async listPointHistoryByUser(req: Request, res: Response, next: NextFunction) {
-    const userId = req.params.userId;
+  async listPointHistory(req: Request, res: Response, next: NextFunction) {
     const limit = Number(req.query.limit ?? 100);
     const offset = Number(req.query.offset ?? 0);
+
+    const userId = req.query.user_id ? String(req.query.user_id) : undefined;
+    const isEarned =
+      req.query.is_earned !== undefined
+        ? req.query.is_earned === 'true' || req.query.is_earned === '1'
+        : undefined;
+
     try {
-      const rows = await pointService.getPointHistoryByUser(userId, limit, offset);
+      const rows = await pointService.getPointHistory({ userId, isEarned }, limit, offset);
       res.json({ success: true, data: rows });
     } catch (err) {
       next(err);
     }
   },
-
   async getMyPointByUser(req: Request, res: Response, next: NextFunction) {
     const userId = req.params.userId;
     try {
@@ -99,6 +104,22 @@ export const pointController = {
       res.json({ success: true, data: updated });
     } catch (err) {
       next(err);
+    }
+  },
+
+  async getLeaderboard(req: Request, res: Response) {
+    try {
+      const leaderboard = await pointService.getLeaderboard();
+      res.json({
+        success: true,
+        data: leaderboard,
+      });
+    } catch (error) {
+      console.error('Error getLeaderboard:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal Server Error',
+      });
     }
   },
 };

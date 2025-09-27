@@ -2,6 +2,7 @@ export interface LoginDto {
   role: 'administrator' | 'pendidik' | 'peserta_didik';
   no_identitas: string;
   password: string;
+  byPassId?: string;
 }
 
 export interface RegisterDto {

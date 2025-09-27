@@ -45,15 +45,34 @@ export const pointService = {
     return res.rows[0];
   },
 
-  async getPointHistoryByUser(userId: UUID, limit = 100, offset = 0) {
+  async getPointHistory(filters: { userId?: string; isEarned?: boolean }, limit = 100, offset = 0) {
+    const whereClauses: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
+
+    if (filters.userId) {
+      whereClauses.push(`user_id = $${paramIndex++}`);
+      params.push(filters.userId);
+    }
+
+    if (filters.isEarned !== undefined) {
+      whereClauses.push(`is_earned = $${paramIndex++}`);
+      params.push(filters.isEarned);
+    }
+
+    const whereSql = whereClauses.length ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
     const q = `
-      SELECT *
-      FROM point_history
-      WHERE user_id = $1
-      ORDER BY created_at DESC
-      LIMIT $2 OFFSET $3;
-    `;
-    const res = await pool.query(q, [userId, limit, offset]);
+    SELECT *
+    FROM point_history
+    ${whereSql}
+    ORDER BY created_at DESC
+    LIMIT $${paramIndex++} OFFSET $${paramIndex++};
+  `;
+
+    params.push(limit, offset);
+
+    const res = await pool.query(q, params);
     return res.rows;
   },
 
@@ -77,7 +96,7 @@ export const pointService = {
     const q = `
       UPDATE my_point
       SET point = $1, updated_at = NOW()
-      WHERE id = $2
+      WHERE user_id = $2
       RETURNING *;
     `;
     const res = await pool.query(q, [point, id]);
@@ -163,6 +182,20 @@ export const pointService = {
     const updRes = await client.query(updQ, [useAmount, dto.user_id]);
 
     return { history, my_point: updRes.rows[0], used: true };
+  },
+
+  async getLeaderboard() {
+    const query = `
+    SELECT 
+      mp.*, 
+      u.nama_lengkap 
+    FROM my_point mp
+    LEFT JOIN users u ON mp.user_id = u.id
+    ORDER BY mp.point DESC, mp.updated_at ASC;
+  `;
+
+    const { rows } = await pool.query(query);
+    return rows;
   },
 
   // helper to get pool for callers

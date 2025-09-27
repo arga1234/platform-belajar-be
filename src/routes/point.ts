@@ -1,6 +1,7 @@
 // src/routes/pointRoutes.ts
 import { Router } from 'express';
 import { pointController } from '../controllers/pointController';
+import { authenticate } from '../middleware/authenticate';
 
 const router = Router();
 
@@ -14,6 +15,7 @@ const router = Router();
  * PUT    /my-point/:id         -> update my_point by id (body: { point })
  */
 
+router.use(authenticate);
 // earn + update my_point (transactional)
 router.post('/earn', pointController.earnPoints);
 
@@ -24,11 +26,12 @@ router.post('/use', pointController.usePoints);
 router.post('/history', pointController.createPointHistoryOnly);
 
 // list history for user
-router.get('/history/user/:userId', pointController.listPointHistoryByUser);
+router.get('/history', pointController.listPointHistory);
 
 // my_point operations
 router.get('/my-point/user/:userId', pointController.getMyPointByUser);
 router.post('/my-point', pointController.createMyPoint);
 router.put('/my-point/:id', pointController.updateMyPoint);
+router.get('/leaderboard', pointController.getLeaderboard);
 
 export default router;

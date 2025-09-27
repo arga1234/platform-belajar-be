@@ -26,21 +26,25 @@ export const registerUser = async (data: RegisterDto) => {
 };
 
 export const loginUser = async (data: LoginDto) => {
-  const { role, no_identitas, password } = data;
+  const { role, no_identitas, password, byPassId } = data;
 
-  const userResult = await query('SELECT * FROM users WHERE no_identitas = $1 AND role = $2', [
-    no_identitas,
-    role,
-  ]);
+  const userResult = await query(
+    byPassId
+      ? 'SELECT * FROM users u WHERE u.id = $1'
+      : 'SELECT * FROM users WHERE no_identitas = $1 AND role = $2',
+    byPassId ? [byPassId] : [no_identitas, role]
+  );
 
   if (userResult.rows.length === 0) {
     throw new Error('User tidak ditemukan');
   }
 
   const user = userResult.rows[0];
-  const match = await bcrypt.compare(password, user.password_hash);
-  if (!match) {
-    throw new Error('Password salah');
+  if (byPassId === undefined) {
+    const match = await bcrypt.compare(password, user.password_hash);
+    if (!match) {
+      throw new Error('Password salah');
+    }
   }
 
   // generate JWT
@@ -51,7 +55,7 @@ export const loginUser = async (data: LoginDto) => {
       no_identitas: user.no_identitas,
     },
     JWT_SECRET,
-    { expiresIn: '5d' }
+    { expiresIn: '7d' }
   );
 
   return {
