@@ -18,7 +18,10 @@ export const rewardController = {
       const reward = await rewardService.decrementRewardStock(id);
 
       if (!reward) {
-        return res.status(400).json({ success: false, message: 'Stock kosong' });
+        return res.status(400).json({
+          success: false,
+          message: 'Setelah dicek pada database, reward ini stocknya sudah habis',
+        });
       }
 
       res.json({ success: true, data: reward });
