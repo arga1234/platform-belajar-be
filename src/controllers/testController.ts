@@ -117,12 +117,16 @@ export const getHasilCapaianByUserIdAndTestId = async (req: Request, res: Respon
 export async function getHasilCapaianByTestId(req: Request, res: Response): Promise<Response> {
   try {
     const { testId } = req.params;
+    const { test_type_id } = req.query;
 
     if (!testId) {
       return res.status(400).json({ message: 'test_id not defined' });
     }
 
-    const data = await testService.getHasilCapaianByTestId(testId);
+    const data = await testService.getHasilCapaianByTestId(
+      testId,
+      test_type_id as string | undefined
+    );
 
     return res.json(data);
   } catch (error) {

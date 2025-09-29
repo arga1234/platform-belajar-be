@@ -147,11 +147,16 @@ export const getHasilCapaianByUserId = async (userId: string) => {
   return result.rows;
 };
 
-export async function getHasilCapaianByTestId(testId: string): Promise<HasilCapaian[]> {
-  const query = `
+export async function getHasilCapaianByTestId(
+  testId: string,
+  test_type_id?: string
+): Promise<HasilCapaian[]> {
+  const query = test_type_id
+    ? `SELECT * FROM hasil_capaian WHERE test_id = $1 AND test_type_id=$2 ORDER BY skor DESC`
+    : `
     SELECT * FROM hasil_capaian WHERE test_id = $1 ORDER BY skor DESC
   `;
-  const result = await pool.query(query, [testId]);
+  const result = await pool.query(query, test_type_id ? [testId, test_type_id] : [testId]);
   return result.rows as HasilCapaian[];
 }
 
